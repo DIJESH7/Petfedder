@@ -1,17 +1,17 @@
 ******************************************************************************
                   TI ARM Linker Unix v20.2.1                   
 ******************************************************************************
->> Linked Wed Apr 14 19:37:28 2021
+>> Linked Wed Apr 14 21:03:09 2021
 
 OUTPUT FILE NAME:   <Petfedder.out>
-ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 0000110d
+ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 00000c79
 
 
 MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00040000  00001265  0003ed9b  R  X
+  FLASH                 00000000   00040000  00000cdc  0003f324  R  X
   SRAM                  20000000   00008000  00001000  00007000  RW X
 
 
@@ -19,10 +19,9 @@ SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    00001265   00001265    r-x
+00000000    00000000    00000cdc   00000cdc    r-x
   00000000    00000000    0000026c   0000026c    r-- .intvecs
-  0000026c    0000026c    00000ef8   00000ef8    r-x .text
-  00001164    00001164    00000101   00000101    r-- .const
+  0000026c    0000026c    00000a70   00000a70    r-x .text
 20000000    20000000    00001000   00000000    rw-
   20000000    20000000    00001000   00000000    rw- .stack
 
@@ -35,20 +34,15 @@ section   page    origin      length       input sections
 .intvecs   0    00000000    0000026c     
                   00000000    0000026c     tm4c123gh6pm_startup_ccs.obj (.intvecs)
 
-.text      0    0000026c    00000ef8     
+.text      0    0000026c    00000a70     
                   0000026c    000007c0     gpio.obj (.text)
-                  00000a2c    00000440     uart_input.obj (.text)
-                  00000e6c    00000130     main.obj (.text)
-                  00000f9c    00000124     uart0.obj (.text)
-                  000010c0    0000004c     rtsv7M4_T_le_v4SPD16_eabi.lib : atoi.c.obj (.text:atoi)
-                  0000110c    0000002c                                   : boot_cortex_m.c.obj (.text:_c_int00_noinit_noargs:_c_int00_noinit_noargs)
-                  00001138    00000018                                   : strcmp.c.obj (.text:strcmp)
-                  00001150    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
-                  0000115c    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
-                  00001160    00000004                                   : exit.c.obj (.text:abort:abort)
-
-.const     0    00001164    00000101     
-                  00001164    00000101     rtsv7M4_T_le_v4SPD16_eabi.lib : ctype.c.obj (.const:.string:_ctypes_)
+                  00000a2c    00000128     main.obj (.text)
+                  00000b54    00000124     uart0.obj (.text)
+                  00000c78    0000002c     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.text:_c_int00_noinit_noargs:_c_int00_noinit_noargs)
+                  00000ca4    00000024     wait.obj (.text)
+                  00000cc8    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
+                  00000cd4    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00000cd8    00000004                                   : exit.c.obj (.text:abort:abort)
 
 .cinit     0    00000000    00000000     UNINITIALIZED
 
@@ -68,34 +62,31 @@ MODULE SUMMARY
        ------                         ----   -------   -------
     ./
        gpio.obj                       1984   0         0      
-       uart_input.obj                 1088   0         0      
        tm4c123gh6pm_startup_ccs.obj   12     620       0      
-       main.obj                       304    0         0      
+       main.obj                       296    0         0      
        uart0.obj                      292    0         0      
+       wait.obj                       36     0         0      
     +--+------------------------------+------+---------+---------+
-       Total:                         3680   620       0      
+       Total:                         2620   620       0      
                                                               
     /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/lib/rtsv7M4_T_le_v4SPD16_eabi.lib
-       ctype.c.obj                    0      257       0      
-       atoi.c.obj                     76     0         0      
        boot_cortex_m.c.obj            44     0         0      
-       strcmp.c.obj                   24     0         0      
        exit.c.obj                     4      0         0      
        pre_init.c.obj                 4      0         0      
     +--+------------------------------+------+---------+---------+
-       Total:                         152    257       0      
+       Total:                         52     0         0      
                                                               
        Stack:                         0      0         4096   
     +--+------------------------------+------+---------+---------+
-       Grand Total:                   3832   877       4096   
+       Grand Total:                   2672   620       4096   
 
 
 GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
 
 address   name                         
 -------   ----                         
-00001161  C$$EXIT                      
-00001151  ResetISR                     
+00000cd9  C$$EXIT                      
+00000cc9  ResetISR                     
 20001000  __STACK_END                  
 00001000  __STACK_SIZE                 
 20000200  __STACK_TOP                  
@@ -109,11 +100,9 @@ UNDEFED   __mpu_init
 20000000  __stack                      
 20000000  __start___llvm_prf_cnts      
 20000000  __stop___llvm_prf_cnts       
-0000110d  _c_int00_noinit_noargs       
-00001164  _ctypes_                     
-0000115d  _system_pre_init             
-00001161  abort                        
-000010c1  atoi                         
+00000c79  _c_int00_noinit_noargs       
+00000cd5  _system_pre_init             
+00000cd9  abort                        
 ffffffff  binit                        
 0000089d  disablePinInterrupt          
 000005d5  disablePinPulldown           
@@ -124,21 +113,16 @@ ffffffff  binit
 0000055f  enablePinPullup              
 0000026d  enablePort                   
 00000000  g_pfnVectors                 
-00000b15  getFieldInteger              
-00000aa9  getFieldString               
 000008e7  getPinValue                  
 0000099d  getPortValue                 
-0000106f  getcUart0                    
-00000e07  getsUart0                    
-00000e6d  initHw                       
-00000e81  initPWM                      
-00000f9d  initUart0                    
-00000a2d  isCommand                    
-00001083  kbhitUart0                   
-00000f11  main                         
-00000b8f  parseFields                  
-00001027  putcUart0                    
-00001043  putsUart0                    
+00000c27  getcUart0                    
+00000a2d  initHw                       
+00000a41  initPWM                      
+00000b55  initUart0                    
+00000c3b  kbhitUart0                   
+00000ad3  main                         
+00000bdf  putcUart0                    
+00000bfb  putsUart0                    
 00000493  selectPinAnalogInput         
 00000445  selectPinDigitalInput        
 000007af  selectPinInterruptBothEdges  
@@ -152,8 +136,8 @@ ffffffff  binit
 000004e3  setPinCommitControl          
 000008c1  setPinValue                  
 00000919  setPortValue                 
-00000fe7  setUart0BaudRate             
-00001139  strcmp                       
+00000b9f  setUart0BaudRate             
+00000ca5  waitMicrosecond              
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -185,29 +169,22 @@ address   name
 000008e7  getPinValue                  
 00000919  setPortValue                 
 0000099d  getPortValue                 
-00000a2d  isCommand                    
-00000aa9  getFieldString               
-00000b15  getFieldInteger              
-00000b8f  parseFields                  
-00000e07  getsUart0                    
-00000e6d  initHw                       
-00000e81  initPWM                      
-00000f11  main                         
-00000f9d  initUart0                    
-00000fe7  setUart0BaudRate             
+00000a2d  initHw                       
+00000a41  initPWM                      
+00000ad3  main                         
+00000b55  initUart0                    
+00000b9f  setUart0BaudRate             
+00000bdf  putcUart0                    
+00000bfb  putsUart0                    
+00000c27  getcUart0                    
+00000c3b  kbhitUart0                   
+00000c79  _c_int00_noinit_noargs       
+00000ca5  waitMicrosecond              
+00000cc9  ResetISR                     
+00000cd5  _system_pre_init             
+00000cd9  C$$EXIT                      
+00000cd9  abort                        
 00001000  __STACK_SIZE                 
-00001027  putcUart0                    
-00001043  putsUart0                    
-0000106f  getcUart0                    
-00001083  kbhitUart0                   
-000010c1  atoi                         
-0000110d  _c_int00_noinit_noargs       
-00001139  strcmp                       
-00001151  ResetISR                     
-0000115d  _system_pre_init             
-00001161  C$$EXIT                      
-00001161  abort                        
-00001164  _ctypes_                     
 20000000  __stack                      
 20000000  __start___llvm_prf_cnts      
 20000000  __stop___llvm_prf_cnts       
@@ -221,4 +198,4 @@ ffffffff  __c_args__
 ffffffff  binit                        
 UNDEFED   __mpu_init                   
 
-[60 symbols]
+[53 symbols]

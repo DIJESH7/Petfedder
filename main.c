@@ -13,7 +13,7 @@
 
 #define MOTOR (*((volatile uint32_t *)(0x42000000 + (0x400043FC-0x40000000)*32 + 2*4)))
 
-#define MOTOR_MASK 4  //PF (M1PW6)
+#define MOTOR_MASK 4
 /**
  * main.c
  */
@@ -32,9 +32,11 @@ void initHw()
 
 void initPWM()
 {
-SYSCTL_RCGCPWM_R |= SYSCTL_RCGCPWM_R1;
-SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5;
+    SYSCTL_RCGCPWM_R |= SYSCTL_RCGCPWM_R1;
+    SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5;
+
     _delay_cycles(3);
+
 
     GPIO_PORTF_DIR_R |= MOTOR_MASK;
     GPIO_PORTF_DR2R_R |= MOTOR_MASK;
@@ -47,9 +49,9 @@ SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5;
     SYSCTL_SRPWM_R=0;
 
     PWM1_3_CTL_R=0;
-    PWM1_3_GENA_R=PWM_1_GENA_ACTCMPAD_ZERO | PWM_1_GENA_ACTLOAD_ONE;
+    PWM1_3_GENA_R|=PWM_1_GENA_ACTCMPAD_ZERO | PWM_1_GENA_ACTLOAD_ONE;
 
-    PWM1_3_LOAD_R=1048;
+    PWM1_3_LOAD_R=255;
 
     PWM1_INVERT_R=PWM_INVERT_PWM6INV;
     PWM1_3_CMPA_R=0;
@@ -67,23 +69,26 @@ int main(void)
     initUart0();
     setUart0BaudRate(115200, 40e6);
     initPWM();
-    while (1)
-        {
-//        putsUart0("Hello");
-            // Get the string from the user
-            getsUart0(&data);
-            // Echo back to the user of the TTY interface for testing
-                   putsUart0(data.buffer);
-
-                   // Parse fields
-                   parseFields(&data);
-
-                   PWM1_3_CMPA_R=900;
-
-                   // Echo back the parsed field information (type and fields)
-
-                   putcUart0('\n');
-                   putcUart0('\r');
-        }
-	return 0;
+    PWM1_3_CMPA_R=250;
+         waitMicrosecond(5000000);
+             PWM1_3_CMPA_R=0;
+            waitMicrosecond(5000000);
+//    while (1)
+//        {
+////        putsUart0("Hello");
+//            // Get the string from the user
+//            getsUart0(&data);
+//            // Echo back to the user of the TTY interface for testing
+//                   putsUart0(data.buffer);
+//
+//                   // Parse fields
+//                   parseFields(&data);
+//
+//
+//                   // Echo back the parsed field information (type and fields)
+//
+//                   putcUart0('\n');
+//                   putcUart0('\r');
+//        }
+//	return 0;
 }
