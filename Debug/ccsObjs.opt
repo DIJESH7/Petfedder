@@ -1,0 +1,1 @@
+"./gpio.obj" "./main.obj" "./tm4c123gh6pm_startup_ccs.obj" "./uart0.obj" "./uart_input.obj" "./wait.obj" "../tm4c123gh6pm.cmd" -llibc.a 
