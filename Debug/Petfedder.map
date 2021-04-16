@@ -1,17 +1,17 @@
 ******************************************************************************
                   TI ARM Linker Unix v20.2.1                   
 ******************************************************************************
->> Linked Wed Apr 14 21:03:09 2021
+>> Linked Fri Apr 16 00:56:14 2021
 
 OUTPUT FILE NAME:   <Petfedder.out>
-ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 00000c79
+ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 00000d2d
 
 
 MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00040000  00000cdc  0003f324  R  X
+  FLASH                 00000000   00040000  00000d90  0003f270  R  X
   SRAM                  20000000   00008000  00001000  00007000  RW X
 
 
@@ -19,9 +19,9 @@ SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    00000cdc   00000cdc    r-x
+00000000    00000000    00000d90   00000d90    r-x
   00000000    00000000    0000026c   0000026c    r-- .intvecs
-  0000026c    0000026c    00000a70   00000a70    r-x .text
+  0000026c    0000026c    00000b24   00000b24    r-x .text
 20000000    20000000    00001000   00000000    rw-
   20000000    20000000    00001000   00000000    rw- .stack
 
@@ -34,15 +34,15 @@ section   page    origin      length       input sections
 .intvecs   0    00000000    0000026c     
                   00000000    0000026c     tm4c123gh6pm_startup_ccs.obj (.intvecs)
 
-.text      0    0000026c    00000a70     
+.text      0    0000026c    00000b24     
                   0000026c    000007c0     gpio.obj (.text)
-                  00000a2c    00000128     main.obj (.text)
-                  00000b54    00000124     uart0.obj (.text)
-                  00000c78    0000002c     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.text:_c_int00_noinit_noargs:_c_int00_noinit_noargs)
-                  00000ca4    00000024     wait.obj (.text)
-                  00000cc8    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
-                  00000cd4    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
-                  00000cd8    00000004                                   : exit.c.obj (.text:abort:abort)
+                  00000a2c    000001dc     main.obj (.text)
+                  00000c08    00000124     uart0.obj (.text)
+                  00000d2c    0000002c     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.text:_c_int00_noinit_noargs:_c_int00_noinit_noargs)
+                  00000d58    00000024     wait.obj (.text)
+                  00000d7c    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
+                  00000d88    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00000d8c    00000004                                   : exit.c.obj (.text:abort:abort)
 
 .cinit     0    00000000    00000000     UNINITIALIZED
 
@@ -63,11 +63,11 @@ MODULE SUMMARY
     ./
        gpio.obj                       1984   0         0      
        tm4c123gh6pm_startup_ccs.obj   12     620       0      
-       main.obj                       296    0         0      
+       main.obj                       476    0         0      
        uart0.obj                      292    0         0      
        wait.obj                       36     0         0      
     +--+------------------------------+------+---------+---------+
-       Total:                         2620   620       0      
+       Total:                         2800   620       0      
                                                               
     /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/lib/rtsv7M4_T_le_v4SPD16_eabi.lib
        boot_cortex_m.c.obj            44     0         0      
@@ -78,15 +78,15 @@ MODULE SUMMARY
                                                               
        Stack:                         0      0         4096   
     +--+------------------------------+------+---------+---------+
-       Grand Total:                   2672   620       4096   
+       Grand Total:                   2852   620       4096   
 
 
 GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
 
 address   name                         
 -------   ----                         
-00000cd9  C$$EXIT                      
-00000cc9  ResetISR                     
+00000d8d  C$$EXIT                      
+00000d7d  ResetISR                     
 20001000  __STACK_END                  
 00001000  __STACK_SIZE                 
 20000200  __STACK_TOP                  
@@ -100,9 +100,9 @@ UNDEFED   __mpu_init
 20000000  __stack                      
 20000000  __start___llvm_prf_cnts      
 20000000  __stop___llvm_prf_cnts       
-00000c79  _c_int00_noinit_noargs       
-00000cd5  _system_pre_init             
-00000cd9  abort                        
+00000d2d  _c_int00_noinit_noargs       
+00000d89  _system_pre_init             
+00000d8d  abort                        
 ffffffff  binit                        
 0000089d  disablePinInterrupt          
 000005d5  disablePinPulldown           
@@ -115,14 +115,14 @@ ffffffff  binit
 00000000  g_pfnVectors                 
 000008e7  getPinValue                  
 0000099d  getPortValue                 
-00000c27  getcUart0                    
+00000cdb  getcUart0                    
 00000a2d  initHw                       
 00000a41  initPWM                      
-00000b55  initUart0                    
-00000c3b  kbhitUart0                   
-00000ad3  main                         
-00000bdf  putcUart0                    
-00000bfb  putsUart0                    
+00000c09  initUart0                    
+00000cef  kbhitUart0                   
+00000b5d  main                         
+00000c93  putcUart0                    
+00000caf  putsUart0                    
 00000493  selectPinAnalogInput         
 00000445  selectPinDigitalInput        
 000007af  selectPinInterruptBothEdges  
@@ -136,8 +136,8 @@ ffffffff  binit
 000004e3  setPinCommitControl          
 000008c1  setPinValue                  
 00000919  setPortValue                 
-00000b9f  setUart0BaudRate             
-00000ca5  waitMicrosecond              
+00000c53  setUart0BaudRate             
+00000d59  waitMicrosecond              
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -171,19 +171,19 @@ address   name
 0000099d  getPortValue                 
 00000a2d  initHw                       
 00000a41  initPWM                      
-00000ad3  main                         
-00000b55  initUart0                    
-00000b9f  setUart0BaudRate             
-00000bdf  putcUart0                    
-00000bfb  putsUart0                    
-00000c27  getcUart0                    
-00000c3b  kbhitUart0                   
-00000c79  _c_int00_noinit_noargs       
-00000ca5  waitMicrosecond              
-00000cc9  ResetISR                     
-00000cd5  _system_pre_init             
-00000cd9  C$$EXIT                      
-00000cd9  abort                        
+00000b5d  main                         
+00000c09  initUart0                    
+00000c53  setUart0BaudRate             
+00000c93  putcUart0                    
+00000caf  putsUart0                    
+00000cdb  getcUart0                    
+00000cef  kbhitUart0                   
+00000d2d  _c_int00_noinit_noargs       
+00000d59  waitMicrosecond              
+00000d7d  ResetISR                     
+00000d89  _system_pre_init             
+00000d8d  C$$EXIT                      
+00000d8d  abort                        
 00001000  __STACK_SIZE                 
 20000000  __stack                      
 20000000  __start___llvm_prf_cnts      
