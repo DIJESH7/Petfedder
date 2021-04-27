@@ -7,81 +7,86 @@
 #include "uart0.h"
 #include "wait.h"
 #include "uart_input.h"
+#include "gpio.h"
 
 #define LED (*((volatile uint32_t *)(0x42000000 + (0x400043FC-0x40000000)*32 + 2*4)))
+
+#define SPEAKER (*((volatile uint32_t *)(0x42000000 + (0x400043FC-0x40000000)*32 + 3*4)))
 
 #define LED_MASK 4  //PF2 M1PWM6
 
 #define MOTOR_FORWARD 64 //PB6 M0PWM0
 
 #define MOTOR_REVERSE  128 //PB7 M0PWM1
-
 #define WATER_MOTOR 16  //PB4 M0PWM2
 
 #define WATER_REVERSE 32 //PB5 M0PWM3
-
+#define SPEAKER_MASK 8
 #define TRIG_MASK 128 //A7 is trig output
 
 #define ECHO_MASK 1 //B0 is echo input
 int timer = 0;
 int count = 0;
 
+#define MOTOR PORTE,3
 void initHw()
 {
     // Configure HW to work with 16 MHz XTAL, PLL enabled, system clock of 40 MHz
-    SYSCTL_RCC_R = SYSCTL_RCC_XTAL_16MHZ | SYSCTL_RCC_OSCSRC_MAIN
-            | SYSCTL_RCC_USESYSDIV | (4 << SYSCTL_RCC_SYSDIV_S);
-    // Set GPIO ports to use APB (not needed since default configuration -- for clarity)
-    // Note UART on port A must use APB
-    SYSCTL_GPIOHBCTL_R = 0;
-    // Enable clocks
-    SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R1;  //Using Timer 1 as Counter
-    SYSCTL_RCGCGPIO_R = SYSCTL_RCGCGPIO_R0 | SYSCTL_RCGCGPIO_R1
-            | SYSCTL_RCGCGPIO_R5;
+      SYSCTL_RCC_R = SYSCTL_RCC_XTAL_16MHZ | SYSCTL_RCC_OSCSRC_MAIN
+              | SYSCTL_RCC_USESYSDIV | (4 << SYSCTL_RCC_SYSDIV_S);
+      // Set GPIO ports to use APB (not needed since default configuration -- for clarity)
+      // Note UART on port A must use APB
+      SYSCTL_GPIOHBCTL_R = 0;
+      SYSCTL_RCGCGPIO_R = SYSCTL_RCGCGPIO_R0 | SYSCTL_RCGCGPIO_R1
+              | SYSCTL_RCGCGPIO_R5;
+      SYSCTL_RCGCTIMER_R |= SYSCTL_RCGCTIMER_R1 | SYSCTL_RCGCTIMER_R2;
+      GPIO_PORTA_DIR_R |= SPEAKER_MASK;
+      GPIO_PORTA_DEN_R |= SPEAKER_MASK;
 
-    // Configure pin A7:
-    GPIO_PORTA_DIR_R |= TRIG_MASK;
-    GPIO_PORTA_DEN_R |= TRIG_MASK;
+      ;
 
-    //Pin B0:
-    GPIO_PORTB_DIR_R &= ~ECHO_MASK;
-    GPIO_PORTB_DEN_R |= ECHO_MASK;
+      // Configure pin A7:
+      GPIO_PORTA_DIR_R |= TRIG_MASK;
+      GPIO_PORTA_DEN_R |= TRIG_MASK;
 
-    //Configure the Interrupts:
-    GPIO_PORTB_IS_R &= ~ECHO_MASK;              // Make interrupt edge sensitive
-    GPIO_PORTB_IBE_R |= ECHO_MASK;                 // Interrupt on one edge
+      //Pin B0:
+      GPIO_PORTB_DIR_R &= ~ECHO_MASK;
+      GPIO_PORTB_DEN_R |= ECHO_MASK;
 
-    GPIO_PORTB_ICR_R |= ECHO_MASK;                  // Clear Interrupt
-    NVIC_EN0_R |= 1 << (INT_GPIOB - 16);         // turn-on interrupt 17 (GPIOB)
-    GPIO_PORTB_IM_R |= ECHO_MASK;                   //Turn on interrupt
+      //Configure the Interrupts:
+      GPIO_PORTB_IS_R &= ~ECHO_MASK;              // Make interrupt edge sensitive
+      GPIO_PORTB_IBE_R |= ECHO_MASK;                 // Interrupt on one edge
 
+      GPIO_PORTB_ICR_R |= ECHO_MASK;                  // Clear Interrupt
+      NVIC_EN0_R |= 1 << (INT_GPIOB - 16);         // turn-on interrupt 17 (GPIOB)
+      GPIO_PORTB_IM_R |= ECHO_MASK;                   //Turn on interrupt
 }
-void initPWMwater()
-{
-    SYSCTL_RCGCPWM_R |= SYSCTL_RCGCPWM_R1 | SYSCTL_RCGCPWM_R0;
-    SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5 | SYSCTL_RCGCGPIO_R1;
-
-    _delay_cycles(3);
-    GPIO_PORTB_DIR_R |= WATER_MOTOR | WATER_REVERSE;
-    GPIO_PORTB_DR2R_R |= WATER_MOTOR | WATER_REVERSE;
-    GPIO_PORTB_DEN_R |= WATER_MOTOR | WATER_REVERSE;
-    GPIO_PORTB_AFSEL_R |= WATER_MOTOR | WATER_REVERSE;
-    GPIO_PORTB_PCTL_R &= (GPIO_PCTL_PB4_M | GPIO_PCTL_PB5_M);
-    GPIO_PORTB_PCTL_R |= (GPIO_PCTL_PB4_M0PWM2 | GPIO_PCTL_PB5_M0PWM3);
-    SYSCTL_SRPWM_R = (SYSCTL_SRPWM_R1 | SYSCTL_SRPWM_R0);
-    SYSCTL_SRPWM_R = 0;
-
-    PWM0_0_CTL_R = 0;
-    PWM0_1_GENA_R |= PWM_0_GENA_ACTCMPAD_ZERO | PWM_0_GENA_ACTLOAD_ONE;
-    PWM0_1_GENB_R |= PWM_0_GENB_ACTCMPBD_ZERO | PWM_0_GENB_ACTLOAD_ONE;
-    PWM0_1_LOAD_R = 1048;
-
-       PWM0_INVERT_R |= (PWM_INVERT_PWM2INV | PWM_INVERT_PWM3INV);
-       PWM0_1_CMPA_R = 0;
-           PWM0_1_CMPB_R = 0;
-           PWM0_1_CTL_R = PWM_0_CTL_ENABLE;
-           PWM0_ENABLE_R = PWM_ENABLE_PWM2EN | PWM_ENABLE_PWM3EN;
-}
+//void initPWMwater()
+//{
+//    SYSCTL_RCGCPWM_R |= SYSCTL_RCGCPWM_R1 | SYSCTL_RCGCPWM_R0;
+//    SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5 | SYSCTL_RCGCGPIO_R1;
+//
+//    _delay_cycles(3);
+//    GPIO_PORTB_DIR_R |= WATER_MOTOR | WATER_REVERSE;
+//    GPIO_PORTB_DR2R_R |= WATER_MOTOR | WATER_REVERSE;
+//    GPIO_PORTB_DEN_R |= WATER_MOTOR | WATER_REVERSE;
+//    GPIO_PORTB_AFSEL_R |= WATER_MOTOR | WATER_REVERSE;
+//    GPIO_PORTB_PCTL_R &= (GPIO_PCTL_PB4_M | GPIO_PCTL_PB5_M);
+//    GPIO_PORTB_PCTL_R |= (GPIO_PCTL_PB4_M0PWM2 | GPIO_PCTL_PB5_M0PWM3);
+//    SYSCTL_SRPWM_R = (SYSCTL_SRPWM_R1 | SYSCTL_SRPWM_R0);
+//    SYSCTL_SRPWM_R = 0;
+//
+//    PWM0_0_CTL_R = 0;
+//    PWM0_1_GENA_R |= PWM_0_GENA_ACTCMPAD_ZERO | PWM_0_GENA_ACTLOAD_ONE;
+//    PWM0_1_GENB_R |= PWM_0_GENB_ACTCMPBD_ZERO | PWM_0_GENB_ACTLOAD_ONE;
+//    PWM0_1_LOAD_R = 1048;
+//
+//       PWM0_INVERT_R |= (PWM_INVERT_PWM2INV | PWM_INVERT_PWM3INV);
+//       PWM0_1_CMPA_R = 0;
+//           PWM0_1_CMPB_R = 0;
+//           PWM0_1_CTL_R = PWM_0_CTL_ENABLE;
+//           PWM0_ENABLE_R = PWM_ENABLE_PWM2EN | PWM_ENABLE_PWM3EN;
+//}
 
 void initPWM()
 {
@@ -121,7 +126,7 @@ void initPWM()
 
     PWM1_3_LOAD_R = 1000;
     PWM1_INVERT_R = PWM_INVERT_PWM6INV;
-    PWM0_0_LOAD_R = 1048;
+    PWM0_0_LOAD_R = 1000;
 
     PWM0_INVERT_R |= (PWM_INVERT_PWM0INV | PWM_INVERT_PWM1INV);
     //PWM0_INVERT_R|=PWM_INVERT_PWM0INV;
@@ -193,23 +198,73 @@ void Timer1ISR()
     count++;
 }
 
+void initMotor()
+{
+//    SYSCTL_RCC_R = SYSCTL_RCC_XTAL_16MHZ | SYSCTL_RCC_OSCSRC_MAIN
+//            | SYSCTL_RCC_USESYSDIV | (4 << SYSCTL_RCC_SYSDIV_S);
+    enablePort (PORTE);
+
+    selectPinPushPullOutput (MOTOR);
+}
+
+void motorOn()
+{
+    setPinValue(MOTOR, 1);
+}
+
+void motorOff()
+{
+    setPinValue(MOTOR, 0);
+}
+void timer2Isr()
+{
+    SPEAKER ^= 1;
+    TIMER2_ICR_R = TIMER_ICR_TATOCINT;               // clear interrupt flag
+}
+void initTimer2()
+{
+    TIMER2_CTL_R &= ~TIMER_CTL_TAEN;      // turn-off timer before reconfiguring
+    TIMER2_CFG_R = TIMER_CFG_32_BIT_TIMER;    // configure as 32-bit timer (A+B)
+    TIMER2_TAMR_R = TIMER_TAMR_TAMR_PERIOD; // configure for periodic mode (count down)
+    TIMER2_TAILR_R = 40000000; // set load value to 40e6 for 1 Hz interrupt rate
+    TIMER2_IMR_R = TIMER_IMR_TATOIM;                 // turn-on interrupts
+    NVIC_EN0_R |= 1 << (INT_TIMER2A - 16);     // turn-on interrupt 37 (TIMER1A)
+}
+
+void playLowContainer()
+{
+    TIMER2_CTL_R |= TIMER_CTL_TAEN;
+    TIMER2_TAILR_R = 19111.3235;
+    waitMicrosecond(2000000);
+    TIMER2_CTL_R &= ~TIMER_CTL_TAEN;
+
+    TIMER2_CTL_R |= TIMER_CTL_TAEN;
+    TIMER2_TAILR_R = 102040.816;
+    waitMicrosecond(2000000);
+    TIMER2_CTL_R &= ~TIMER_CTL_TAEN;
+}
+
 int main(void)
 {
     USER_DATA data;
     initHw();
     initUart0();
     setUart0BaudRate(115200, 40e6);
+    initTimer2();
+    initMotor();
     initPWM();
-   // initPWMwater();
+    putsUart0("gi");
+
+    // initPWMwater();
 //
-    PWM0_0_CMPA_R = 900;
-    waitMicrosecond(5000000);
-    PWM0_0_CMPA_R = 0;
-    waitMicrosecond(5000000);
-    PWM0_0_CMPB_R = 900;
-    waitMicrosecond(5000000);
-    PWM0_0_CMPB_R = 0;
-    waitMicrosecond(5000000);
+//    PWM0_0_CMPA_R = 999;
+//    waitMicrosecond(5000000);
+//    PWM0_0_CMPA_R = 0;
+//    waitMicrosecond(5000000);
+//    PWM0_0_CMPB_R = 999;
+//    waitMicrosecond(5000000);
+//    PWM0_0_CMPB_R = 0;
+//    waitMicrosecond(5000000);
 //    PWM0_0_CMPA_R = 700;
 //    waitMicrosecond(5000000);
 //    PWM0_0_CMPA_R = 0;
@@ -234,6 +289,8 @@ int main(void)
         {
 
         }
+//        playLowContainer();
+//        motorOn();
     }
 //    while (1)
 //        {
