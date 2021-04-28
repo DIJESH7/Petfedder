@@ -18,8 +18,13 @@ main.obj: /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/incl
 main.obj: ../tm4c123gh6pm.h
 main.obj: ../uart0.h
 main.obj: ../wait.h
-main.obj: ../uart_input.h
 main.obj: ../gpio.h
+main.obj: ../network.h
+main.obj: ../device.h
+main.obj: ../protocol.h
+main.obj: ../messageQueue.h
+main.obj: ../eeprom.h
+main.obj: ../clock.h
 
 ../main.c: 
 /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/include/stdint.h: 
@@ -39,5 +44,10 @@ main.obj: ../gpio.h
 ../tm4c123gh6pm.h: 
 ../uart0.h: 
 ../wait.h: 
-../uart_input.h: 
 ../gpio.h: 
+../network.h: 
+../device.h: 
+../protocol.h: 
+../messageQueue.h: 
+../eeprom.h: 
+../clock.h: 

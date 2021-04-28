@@ -58,6 +58,7 @@ extern uint32_t __STACK_TOP;
 extern void EchoISR(void);
 extern void Timer1ISR(void);
 extern void timer2Isr(void);
+extern void timer0Isr(void);
 //*****************************************************************************
 //
 // The vector table.  Note that the proper constructs must be placed on this to
@@ -104,7 +105,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // ADC Sequence 2
     IntDefaultHandler,                      // ADC Sequence 3
     IntDefaultHandler,                      // Watchdog timer
-    IntDefaultHandler,                      // Timer 0 subtimer A
+    timer0Isr,                      // Timer 0 subtimer A
     IntDefaultHandler,                      // Timer 0 subtimer B
     Timer1ISR,                              // Timer 1 subtimer A
     IntDefaultHandler,                      // Timer 1 subtimer B

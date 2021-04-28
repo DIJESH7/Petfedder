@@ -8,11 +8,22 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./clock.obj" \
+"./common_terminal_interface.obj" \
+"./device.obj" \
+"./eeprom.obj" \
 "./gpio.obj" \
+"./joinNetwork.obj" \
 "./main.obj" \
+"./messageQueue.obj" \
+"./network.obj" \
+"./nrf24l01.obj" \
+"./protocol.obj" \
+"./spi1.obj" \
+"./timer0.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
 "./uart0.obj" \
-"./uart_input.obj" \
+"./utils.obj" \
 "./wait.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
@@ -157,8 +168,8 @@ Petfedder.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "gpio.obj" "main.obj" "tm4c123gh6pm_startup_ccs.obj" "uart0.obj" "uart_input.obj" "wait.obj" 
-	-$(RM) "gpio.d" "main.d" "tm4c123gh6pm_startup_ccs.d" "uart0.d" "uart_input.d" "wait.d" 
+	-$(RM) "clock.obj" "common_terminal_interface.obj" "device.obj" "eeprom.obj" "gpio.obj" "joinNetwork.obj" "main.obj" "messageQueue.obj" "network.obj" "nrf24l01.obj" "protocol.obj" "spi1.obj" "timer0.obj" "tm4c123gh6pm_startup_ccs.obj" "uart0.obj" "utils.obj" "wait.obj" 
+	-$(RM) "clock.d" "common_terminal_interface.d" "device.d" "eeprom.d" "gpio.d" "joinNetwork.d" "main.d" "messageQueue.d" "network.d" "nrf24l01.d" "protocol.d" "spi1.d" "timer0.d" "tm4c123gh6pm_startup_ccs.d" "uart0.d" "utils.d" "wait.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

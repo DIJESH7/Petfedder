@@ -14,7 +14,6 @@ uart0.obj: /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/inc
 uart0.obj: /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/include/stdbool.h
 uart0.obj: ../tm4c123gh6pm.h
 uart0.obj: ../uart0.h
-uart0.obj: ../gpio.h
 
 ../uart0.c: 
 /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/include/stdint.h: 
@@ -30,4 +29,3 @@ uart0.obj: ../gpio.h
 /Applications/ti/ccs1011/ccs/tools/compiler/ti-cgt-arm_20.2.1.LTS/include/stdbool.h: 
 ../tm4c123gh6pm.h: 
 ../uart0.h: 
-../gpio.h: 
