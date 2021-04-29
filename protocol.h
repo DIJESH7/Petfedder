@@ -84,7 +84,7 @@ void sendJoinResponse(uint8_t* buffer, uint8_t nBytes, uint8_t id, uint8_t slotN
 bool isJoinResponse(uint8_t* buffer);
 void assembleDevCaps(uint8_t* buffer, char* deviceName, uint8_t attributeCount, uint8_t attributeId[], char* topicNames[]);
 void sendDevCaps(uint8_t* buffer, uint8_t* devCapBuffer, messageType m);
-bool isDevCap(uint8_t* buffer, messageType m);
+bool isDevCaps(uint8_t* buffer, messageType m);
 void sendPingRequest(uint8_t* buffer, uint8_t deviceId);
 bool isPingRequest(uint8_t* buffer);
 void sendPingResponse(uint8_t* buffer, uint8_t id, uint8_t deviceId);

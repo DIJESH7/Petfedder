@@ -33,25 +33,20 @@
 #define ECHO_MASK 1 //B0 is echo input
 uint32_t timer = 0;
 uint32_t count = 0;
-uint32_t distance=0;
+
+
 
 #define MOTOR PORTE,3
 
-void receiveData(uint8_t *buffer)
-{
-    putsUart0("Turning on led ...\n");
-    uint8_t *data = (buffer + 7);
-    if (data[0] == 1)
-        setPinValue(JOIN_LED, 1);
-}
+
 
 void initCurrentDevice()
 {
     uint32_t deviceMetaData = readEeprom(DEVICE_DATA_START);
-    if (deviceMetaData == 0xFFFFFFFF)
+    if(deviceMetaData == 0xFFFFFFFF)
     {
         // The device id will be a range from 0 - MAX_DEVICES
-        setDeviceId(3);
+        setDeviceId(1);
     }
     else
     {
@@ -61,6 +56,7 @@ void initCurrentDevice()
         putsUart0("Loading device meta data ...\n");
     }
 }
+
 
 void initpetHw()
 {
@@ -170,51 +166,57 @@ void initPWMwater()
 //
 //}
 
-void EchoISR()
-{
-    GPIO_PORTB_ICR_R |= ECHO_MASK; //Clear the interrupt
-    putcUart0(timer + 48);
-    putsUart0("\r\n");
-    if (timer == 0)
-    {
-        //Confingure Timer:
-        TIMER1_CTL_R &= ~TIMER_CTL_TAEN;
-        TIMER1_CFG_R = TIMER_CFG_32_BIT_TIMER;
-        TIMER1_TAMR_R = TIMER_TAMR_TAMR_PERIOD;
-        TIMER1_TAILR_R = 200;   // Interrupt every 5 us
-        TIMER1_IMR_R = TIMER_IMR_TATOIM;
-        NVIC_EN0_R |= 1 << (INT_TIMER1A - 16);
-        TIMER1_CTL_R |= TIMER_CTL_TAEN;
-        count = 0;
-    }
-
-    else
-    {
-        //Turn off timer here:
-        TIMER1_IMR_R = ~TIMER_IMR_TATOIM;
-        TIMER1_CTL_R &= ~TIMER_CTL_TAEN;
-        if (count == 0)
-            putsUart0("0ms \r\n");
-
-        else
-        {
-            distance = 343 * count * 5 / 20000;       //distance in cm
-            char outstr[4] = 0;
-            outstr[3] = '\0';
-            uint32_t i = 0;
-            for (i = 0; i < 3; i++)
-            {
-                outstr[2 - i] = (distance % 10) + 48;
-                distance = distance / 10;
-            }
-             putsUart0(outstr);
-             putsUart0(" cm.\r\n");
-            //Error could be up to 0.03 cms.
-
-        }
-    }
-    timer++;
-}
+//void EchoISR()
+//{
+//    GPIO_PORTB_ICR_R |= ECHO_MASK; //Clear the interrupt
+////    putcUart0(timer + 48);
+////    putsUart0("\r\n");
+//    if (timer == 0)
+//    {
+//        //Confingure Timer:
+//        TIMER1_CTL_R &= ~TIMER_CTL_TAEN;
+//        TIMER1_CFG_R = TIMER_CFG_32_BIT_TIMER;
+//        TIMER1_TAMR_R = TIMER_TAMR_TAMR_PERIOD;
+//        TIMER1_TAILR_R = 200;   // Interrupt every 5 us
+//        TIMER1_IMR_R = TIMER_IMR_TATOIM;
+//        NVIC_EN0_R |= 1 << (INT_TIMER1A - 16);
+//        TIMER1_CTL_R |= TIMER_CTL_TAEN;
+//        count = 0;
+//    }
+//
+//    else
+//    {
+//        int i=0;
+//        //Turn off timer here:
+//        TIMER1_IMR_R = ~TIMER_IMR_TATOIM;
+//        TIMER1_CTL_R &= ~TIMER_CTL_TAEN;
+//        if (count == 0)
+//        {
+//            i=0;
+//
+//        }
+//            //putsUart0("0ms \r\n");
+//
+//        else
+//        {
+//            distance = 343 * count * 5 / 20000;       //distance in cm
+//            volume=distance;
+//            char outstr[4] = 0;
+//            outstr[3] = '\0';
+//            uint32_t i = 0;
+//            for (i = 0; i < 3; i++)
+//            {
+//                outstr[2 - i] = (distance % 10) + 48;
+//                distance = distance / 10;
+//            }
+//             //putsUart0(outstr);
+//            // putsUart0(" cm.\r\n");
+//            //Error could be up to 0.03 cms.
+//
+//        }
+//    }
+//    timer++;
+//}
 
 void Timer1ISR()
 {
@@ -241,6 +243,48 @@ void motorOff()
 {
     setPinValue(MOTOR, 0);
 }
+
+void waterpump()
+{
+    motorOn();
+    waitMicrosecond(2000000);
+    motorOff();
+}
+
+
+void receiveData(uint8_t* buffer)
+{
+    putsUart0("Received data ...\n");
+    packetHeader* pH = (packetHeader*)buffer;
+    uint8_t* data = (buffer + 7);
+
+    char out[50];
+    sprintf(out, "Received %d byte(s) of data\n", pH->length);
+    putsUart0(out);
+
+    char tmpData[50];
+    uint8_t i = 0;
+    for(i = 0; i < pH->length; i++)
+    {
+        sprintf(out, "%c\t", data[i]);
+        putsUart0(out);
+    }
+
+    for(i = 1; i < pH->length; i++)
+        tmpData[i - 1] = data[i];
+
+    if (data[0] == 1) {
+        if(stringCompare(tmpData, "TRIGGER"))
+            waterpump();
+    }
+    if (data[0] == 2) {
+        if(stringCompare(tmpData, "TRIGGER"))
+            opencontainer();
+    }
+
+    putcUart0('\n');
+}
+
 void timer2Isr()
 {
     SPEAKER ^= 1;
@@ -248,10 +292,10 @@ void timer2Isr()
 }
 void initTimer2()
 {
-    TIMER2_CTL_R &= ~TIMER_CTL_TAEN;      // turn-off timer before reconfiguring
-    TIMER2_CFG_R = TIMER_CFG_32_BIT_TIMER;    // configure as 32-bit timer (A+B)
+    TIMER2_CTL_R &= ~TIMER_CTL_TAEN;        // turn-off timer before reconfiguring
+    TIMER2_CFG_R = TIMER_CFG_32_BIT_TIMER;  // configure as 32-bit timer (A+B)
     TIMER2_TAMR_R = TIMER_TAMR_TAMR_PERIOD; // configure for periodic mode (count down)
-    TIMER2_TAILR_R = 40000000; // set load value to 40e6 for 1 Hz interrupt rate
+    TIMER2_TAILR_R = 40000000;              // set load value to 40e6 for 1 Hz interrupt rate
     TIMER2_IMR_R = TIMER_IMR_TATOIM;                 // turn-on interrupts
     NVIC_EN0_R |= 1 << (INT_TIMER2A - 16);     // turn-on interrupt 37 (TIMER1A)
 }
@@ -298,15 +342,16 @@ int main(void)
 {
     initSystemClockTo40Mhz();
 
-    initpetHw();
+   // initpetHw();
 
     initUart0();
     setUart0BaudRate(115200, 40e6);
-    initTimer2();
-    initMotor();
-    initPWMwater();
+   // initTimer2();
     initNetwork();
-               initEeprom();
+     initEeprom();
+//    initMotor();
+//    initPWMwater();
+
 
 
     /*
@@ -314,7 +359,7 @@ int main(void)
      */
 //    motorOn();
 
-               opencontainer();
+
 
     if (!getMode())
     {
@@ -327,7 +372,11 @@ int main(void)
     while (true)
     {
 
-//        triggerUltraSonicSensor();
+
+      // triggerUltraSonicSensor();
+
+
+        volume=1;
         commsReceive();
 
 //
@@ -338,22 +387,6 @@ int main(void)
 //        playLowContainer();
 
     }
-//    while (1)
-//        {
-////        putsUart0("Hello");
-//            // Get the string from the user
-//            getsUart0(&data);
-//            // Echo back to the user of the TTY interface for testing
-//                   putsUart0(data.buffer);
-//
-//                   // Parse fields
-//                   parseFields(&data);
-//
-//
-//                   // Echo back the parsed field information (type and fields)
-//
-//                   putcUart0('\n');
-//                   putcUart0('\r');
-//        }
+
 //  return 0;
 }

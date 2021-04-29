@@ -14,7 +14,8 @@
 #define TX_LED              PORTF,1
 #define JOIN_LED            PORTF,2
 #define RX_LED              PORTF,3
-
+uint8_t distance;
+uint8_t volume;
 void initNetwork();
 void commsReceive();
 void registerPushDataCallback(void (*callback)(uint8_t*));

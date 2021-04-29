@@ -55,7 +55,7 @@ extern uint32_t __STACK_TOP;
 //
 //*****************************************************************************
 // To be added by user
-extern void EchoISR(void);
+//extern void EchoISR(void);
 extern void Timer1ISR(void);
 extern void timer2Isr(void);
 extern void timer0Isr(void);
@@ -87,7 +87,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // The PendSV handler
     IntDefaultHandler,                      // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
-    EchoISR,                                // GPIO Port B
+    IntDefaultHandler,                                // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
     IntDefaultHandler,                      // GPIO Port D
     IntDefaultHandler,                      // GPIO Port E

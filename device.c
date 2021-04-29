@@ -7,7 +7,7 @@
 
 #include "device.h"
 
-uint8_t deviceId = 3;
+uint8_t deviceId = 0;
 
 /*
  * Device list
